@@ -25,8 +25,10 @@ public class Pirate {
     public void findTreasure(String path){
         dispatcher.unhashFromFile(path);
         //sort cracked hashes from first pass
-        dispatcher.listCracked();
-        dispatcher.listUncracked();
+        //for i = 0 to i = crackedHashes.length() - 1
+            //attempt to unhash (crackedHashes.get(i) + ";"
+            //                 + crackedHashes.get(i)++ to crackedHashes.get(i+1)-- + ";"
+            //                 + crackedHashes.get(i+1)  
     }
 
     public void setNumCPUS(int cpus){
