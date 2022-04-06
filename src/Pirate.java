@@ -1,8 +1,6 @@
 public class Pirate {
 
     private Dispatcher dispatcher;
-    private String result;
-    private static final Hash hasher = new Hash();
 
     public Pirate(){
         this.dispatcher = new Dispatcher();
@@ -34,9 +32,21 @@ public class Pirate {
         dispatcher.listCracked();
         dispatcher.listUncracked();
     }
+
+    public void setNumCPUS(int cpus){
+        dispatcher.setNumCPUS(cpus);
+    }
+
+    public void setTimeout(Long timeout){
+        dispatcher.setTimeout(timeout);
+    }
  
     public static void main(String[] args) {
         Pirate pirate = new Pirate();
+        pirate.setNumCPUS(Integer.valueOf(args[1]));
+        if(args.length > 2){
+            pirate.setTimeout(Long.valueOf(args[2]));
+        }
         pirate.findTreasure(args[0]);
         //pirate.dispatcher.printOuput();
     }

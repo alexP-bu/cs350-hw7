@@ -1,10 +1,10 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Solution to HW-6 as the hw states - however, this is slow. 
@@ -15,16 +15,16 @@ import java.util.Vector;
 
 public class Dispatcher{
 
-    private Queue<String> workQueue;
-    private List<Worker> workers;
+    private BlockingQueue<String> workQueue;
+    private List<Thread> threads;
     private List<Integer> crackedHashes;
     private List<String> uncrackedHashes;
     private Long timeout;
     private int totCPUs;
 
     public Dispatcher(){
-        this.workQueue = new LinkedList<>();
-        this.workers = new Vector<>();
+        this.workQueue = new LinkedBlockingQueue<>();
+        this.threads = new Vector<>();
         this.crackedHashes = new Vector<>();
         this.uncrackedHashes = new Vector<>();
     }
@@ -35,11 +35,19 @@ public class Dispatcher{
     //read lines from file and dispatch them to the queue
     public void unhashFromFile(String path){
         try(BufferedReader br = new BufferedReader(new FileReader(new File(path)))){
-            String line = br.readLine();
-            br.lines().forEach(this::dispatch);
+            br.lines().parallel().forEach(this::dispatch);
         } catch(Exception e){
           e.printStackTrace();
         }
+
+        threads.parallelStream().forEach(thread -> {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                e.printStackTrace();
+            }
+        });
     }
 
     /** 
@@ -52,10 +60,9 @@ public class Dispatcher{
         //are no jobs left in the queue (workers aren't capped)
         while(!workQueue.isEmpty()){
             if(Thread.activeCount() < totCPUs){
-                Worker w = new Worker(workQueue.poll(), timeout, uncrackedHashes, crackedHashes);
-                Thread thread = new Thread(w);
-                thread.start();
-                workers.add(w);
+                Thread t = new Thread(new Worker(workQueue.poll(), timeout, uncrackedHashes, crackedHashes));
+                t.start();
+                threads.add(t);
             }
         }
     }
