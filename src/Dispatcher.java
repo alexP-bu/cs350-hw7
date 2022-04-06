@@ -1,7 +1,7 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,7 +30,7 @@ public class Dispatcher{
         this.workQueue = new LinkedBlockingQueue<>();
         this.threads = new Vector<>();
         this.crackedHashes = new Vector<>();
-        this.uncrackedHashes = Collections.synchronizedSet(new HashSet<>());
+        this.uncrackedHashes = new HashSet<>();
     }
 
     /** 
@@ -63,7 +63,7 @@ public class Dispatcher{
         //if there are jobs in the queue but not available workers, keep running until there 
         //are no jobs left in the queue (workers aren't capped)
         while(!workQueue.isEmpty()){
-            if(Thread.activeCount() < (totCPUs)){
+            if(Thread.activeCount() < (totCPUs + 1)){
                 Thread t = new Thread(new Worker(workQueue.poll(), timeout, uncrackedHashes, crackedHashes));
                 t.start();
                 threads.add(t);
@@ -91,7 +91,7 @@ public class Dispatcher{
     }
 
     public void sortCrackedHashes(){
-        crackedHashes = crackedHashes.stream().sorted().collect(Collectors.toList());
+        crackedHashes = crackedHashes.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
     }
 
     public List<Integer> getCrackedHashes(){
@@ -120,5 +120,4 @@ public class Dispatcher{
         //import hashes into dispatcher
         dispatcher.unhashFromFile(args[0]);
     }
-
 }
