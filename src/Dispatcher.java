@@ -1,10 +1,14 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 /**
  * Solution to HW-6 as the hw states - however, this is slow. 
@@ -18,7 +22,7 @@ public class Dispatcher{
     private BlockingQueue<String> workQueue;
     private List<Thread> threads;
     private List<Integer> crackedHashes;
-    private List<String> uncrackedHashes;
+    private Set<String> uncrackedHashes;
     private Long timeout;
     private int totCPUs;
 
@@ -26,7 +30,7 @@ public class Dispatcher{
         this.workQueue = new LinkedBlockingQueue<>();
         this.threads = new Vector<>();
         this.crackedHashes = new Vector<>();
-        this.uncrackedHashes = new Vector<>();
+        this.uncrackedHashes = Collections.synchronizedSet(new HashSet<>());
     }
 
     /** 
@@ -35,12 +39,12 @@ public class Dispatcher{
     //read lines from file and dispatch them to the queue
     public void unhashFromFile(String path){
         try(BufferedReader br = new BufferedReader(new FileReader(new File(path)))){
-            br.lines().parallel().forEach(this::dispatch);
+            br.lines().forEach(this::dispatch);
         } catch(Exception e){
           e.printStackTrace();
         }
 
-        threads.parallelStream().forEach(thread -> {
+        threads.forEach(thread -> {
             try {
                 thread.join();
             } catch (InterruptedException e) {
@@ -59,7 +63,7 @@ public class Dispatcher{
         //if there are jobs in the queue but not available workers, keep running until there 
         //are no jobs left in the queue (workers aren't capped)
         while(!workQueue.isEmpty()){
-            if(Thread.activeCount() < totCPUs){
+            if(Thread.activeCount() < (totCPUs)){
                 Thread t = new Thread(new Worker(workQueue.poll(), timeout, uncrackedHashes, crackedHashes));
                 t.start();
                 threads.add(t);
@@ -86,6 +90,18 @@ public class Dispatcher{
         uncrackedHashes.stream().forEach(System.out::println);
     }
 
+    public void sortCrackedHashes(){
+        crackedHashes = crackedHashes.stream().sorted().collect(Collectors.toList());
+    }
+
+    public List<Integer> getCrackedHashes(){
+        return crackedHashes;
+    }
+    
+    public Set<String> getUncrackedHashes() {
+        return uncrackedHashes;
+    }
+
     /** 
      * @param args[0] file path
      * @param args[1] num cpus
@@ -104,4 +120,5 @@ public class Dispatcher{
         //import hashes into dispatcher
         dispatcher.unhashFromFile(args[0]);
     }
+
 }

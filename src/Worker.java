@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.Set;
 
 public class Worker implements Runnable{
     
@@ -6,10 +7,10 @@ public class Worker implements Runnable{
     private UnHash unhasher;
     private Integer result;
     private List<Integer> crackedHashes;
-    private List<String> uncrackedHashes;
+    private Set<String> uncrackedHashes;
     private boolean done;
 
-    Worker(String hash, Long timeout, List<String> uncracked, List<Integer> cracked){
+    Worker(String hash, Long timeout, Set<String> uncracked, List<Integer> cracked){
         this.hash = hash;
         this.unhasher = new UnHash(timeout);
         this.uncrackedHashes = uncracked;

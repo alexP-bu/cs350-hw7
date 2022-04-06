@@ -23,6 +23,10 @@ public class Hash {
         return String.format("%032x", new BigInteger(1, md.digest(String.valueOf(hash).getBytes(StandardCharsets.UTF_8))));
     }
 
+    public String hash(String hash){
+        return String.format("%032x", new BigInteger(1, md.digest(hash.getBytes(StandardCharsets.UTF_8))));
+    }
+
 
     /** 
      * @param args
