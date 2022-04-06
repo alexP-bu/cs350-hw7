@@ -15,15 +15,11 @@ public class Pirate {
     //sort the list from lowest to highest
 
     //say our list is 123, 234, 345, 456
-    //use a pointer.
-    //our first compound result could be 
-        //a) 123;[124-233];234
-        //b) 234;[235-344];345
-        //c) this pattern onwards
-    //if the result is the first result, we get the compound hint of a. That means our next
-    //hint cannot contain 123 or 234 - we can essentially remove them from the list and run the above
-    //again
-    
+    //we could have compound hints like this:
+    // 123;[124 - 233];234
+    // 234;[235 - 344];345
+    // 345;[346 - 455];456
+    // So, if we sort our cracked hashes, we could brute force for every subset    
 
     //work in progress
     public void findTreasure(String path){
