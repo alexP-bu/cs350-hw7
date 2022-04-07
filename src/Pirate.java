@@ -13,6 +13,7 @@ public class Pirate {
         printer = new PrintWriter(System.out);
     }
     
+    //turns out running backwards through the list is way faster!
     public void findTreasure(String path){
         //run first pass
         dispatcher.unhashFromFile(path);
@@ -53,7 +54,7 @@ public class Pirate {
     }
 
     public void setNumCPUS(int cpus){
-        dispatcher.setNumCPUS(cpus);
+        //dispatcher.setNumCPUS(cpus);
     }
 
     public void setTimeout(Long timeout){
@@ -66,7 +67,7 @@ public class Pirate {
  
     public static void main(String[] args) {
         Pirate pirate = new Pirate();
-        pirate.setNumCPUS(Integer.valueOf(args[1]));
+        //pirate.setNumCPUS(Integer.valueOf(args[1]));
         pirate.setTimeout(Long.valueOf(args[2]));
         pirate.findTreasure(args[0]);
         pirate.printOuput();
