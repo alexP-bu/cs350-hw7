@@ -145,29 +145,4 @@ public class Dispatcher {
     public void sortCrackedHashes(){
         crackedHashes = crackedHashes.parallelStream().sorted().collect(Collectors.toList());
     }
-
-    /**
-     * @param args[0] file path
-     * @param args[1] num cpus
-     * @param args[2] OPTIONAL timeout
-     * @throws IOException
-     */
-    public static void main(String[] args) {
-        // initialize dispatcher
-        Dispatcher dispatcher = new Dispatcher();
-        // the submission portal is kinda buggy with the second argument
-        // so set the timeout manually
-        if (args.length > 2) {
-            dispatcher.setTimeout(Long.valueOf(args[2]));
-        }
-        // import hashes into dispatcher
-        dispatcher.unhashFromFile(args[0]);
-        //print output
-        try {
-            printer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

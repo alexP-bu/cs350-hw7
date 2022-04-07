@@ -10,9 +10,9 @@ public class TreasureGnome implements Runnable {
 
     public TreasureGnome(Pirate pirate, int start, int end, Set<String> uncrackedHashes){
         this.hasher = new Hash();
+        this.pirate = pirate;
         this.start = start;
         this.end = end;
-        this.pirate = pirate;
         this.uncrackedHashes = uncrackedHashes;
     }
 
