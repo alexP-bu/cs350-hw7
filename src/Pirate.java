@@ -74,12 +74,10 @@ public class Pirate {
     }
  
     public static void main(String[] args) {
-        long start = System.currentTimeMillis();
         Pirate pirate = new Pirate();
-        //pirate.setNumCPUS(Integer.valueOf(args[1]));
+        //pirate.setNumCPUS(Integer.valueOf(args[1])); who needs to cap cpus huh not me
         pirate.setTimeout(Long.valueOf(args[2]));
         pirate.findTreasure(args[0]);
         pirate.printOuput();
-        System.out.println("RUNTIME: " + (System.currentTimeMillis() - start));
     }
 }
