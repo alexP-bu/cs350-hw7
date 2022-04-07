@@ -19,28 +19,34 @@ public class Pirate {
         dispatcher.unhashFromFile(path);
         //sort cracked ints from first pass from low to high
         dispatcher.sortCrackedHashes();
-        dispatcher.getCrackedHashes().parallelStream().forEach(hash -> printer.write(hash + "\n"));
-        //run our unhash operation
-        for(int i = 0; i < dispatcher.getCrackedHashes().size() - 1; i++){
-            Integer curr = i;
-            Integer endPoint = dispatcher.getCrackedHashes().get(curr);
-            for(int k = curr + 1; k < dispatcher.getCrackedHashes().size(); k++){
-                Integer startPoint = dispatcher.getCrackedHashes().get(k);
-                Thread t = new Thread(() -> {
-                    Hash hasher = new Hash();
-                    for(int j = startPoint + 1; j < endPoint; j++){
-                        String currHash = hasher.hash(startPoint + ";" + j + ";" + endPoint);
-                        if(dispatcher.getUncrackedHashes().contains(currHash)){
-                            printer.write(startPoint + ";" + j + ";" + endPoint + "\n");
-                            dispatcher.getUncrackedHashes().remove(currHash);
-                        }
-                    }
-                });
-                t.start();
-                threads.add(t);
-            }
-        }
+        //write cracked hashes to our printer
+        dispatcher.getCrackedHashes()
+                    .parallelStream()
+                    .forEach(hash -> printer.write(hash + "\n"));
+        //spooky lambda operation which runs our unhash operation
+        //on every subset of hashes where hash1 < hash2 in ascending order of hash1
+        dispatcher.getCrackedHashes()
+            .parallelStream()
+            .forEach(hash1 -> 
+                dispatcher.getCrackedHashes()
+                            .parallelStream()
+                            .filter(hash2 -> hash1 < hash2)
+                            .forEach(hash2 -> {
+                                Thread t = new Thread(new TreasureGnome(this, hash1, hash2, dispatcher.getUncrackedHashes()));
+                                t.start();
+                                threads.add(t);
+                            }));
+        
+        
+        //ensure all threads are done before finishing
+        finishThreads();
+        //write failed puzzles to output
+        dispatcher.getUncrackedHashes()
+                    .parallelStream()
+                    .forEach(hash -> printer.write(hash + "\n"));
+    }
 
+    private void finishThreads(){
         threads.parallelStream().forEach(thread -> {
             try {
                 thread.join();
@@ -49,8 +55,6 @@ public class Pirate {
                 e.printStackTrace();
             }
         });
-
-        dispatcher.getUncrackedHashes().parallelStream().forEach(hash -> printer.write(hash + "\n"));
     }
 
     public void setNumCPUS(int cpus){
@@ -64,12 +68,18 @@ public class Pirate {
     public void printOuput(){
         printer.flush();
     }
+    
+    public void writeToOutput(String string) {
+        printer.write(string);
+    }
  
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         Pirate pirate = new Pirate();
         //pirate.setNumCPUS(Integer.valueOf(args[1]));
         pirate.setTimeout(Long.valueOf(args[2]));
         pirate.findTreasure(args[0]);
         pirate.printOuput();
+        System.out.println("RUNTIME: " + (System.currentTimeMillis() - start));
     }
 }

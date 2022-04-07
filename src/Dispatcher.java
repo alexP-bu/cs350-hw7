@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -144,7 +143,7 @@ public class Dispatcher {
     } 
 
     public void sortCrackedHashes(){
-        crackedHashes = crackedHashes.parallelStream().sorted(Comparator.reverseOrder()).toList();
+        crackedHashes = crackedHashes.parallelStream().sorted().collect(Collectors.toList());
     }
 
     /**
